@@ -1,34 +1,44 @@
 import random
+import copy
 # Consider using the modules imported above.
 
 
 class Hat:
     def __init__(self, **kwargs):
-        self.red = kwargs.get('red', 0)
-        self.green = kwargs.get('green', 0)
-        self.blue = kwargs.get('blue', 0)
-        self.yellow = kwargs.get('yellow', 0)
-        self.orange = kwargs.get('orange', 0)
-        self.black = kwargs.get('black', 0)
-        self.pink = kwargs.get('pink', 0)
-        self.striped = kwargs.get('striped', 0)
-
         self.contents = []
+        self.contents_all = []
         for colors in kwargs:
             for counts in range(kwargs[colors]):
                 self.contents.append(colors)
+                self.contents_all.append(colors)
 
-    def draw(self, numbers):
-        drawn_balls = []
-        for _ in range(numbers):
-            drawn_balls.append(
-                self.contents[random.randint(0, len(self.contents)-1)])
-        # remove drawn balls in self.contents
-        for i in drawn_balls:
-            self.contents.remove(i)
-        return drawn_balls
+    def draw(self, num_balls):
+
+        if num_balls > len(self.contents):
+            return (self.contents)
+
+        else:
+            draws = []
+            for _ in range(num_balls):
+                draws.append(self.contents.pop(
+                    random.randint(0, len(self.contents)-1)))
+
+            return (draws)
 
 
 def experiment(hat, expected_balls, num_balls_drawn, num_experiments):
-    # for i in range(num_experiments):
-    hat.draw(num_balls_drawn)
+    probs = 0
+
+    for i in range(num_experiments):
+        hat.contents_copy = hat.contents_all.copy()
+        hat_draw = hat.draw(num_balls_drawn)
+        drawn = {x: hat_draw.count(x) for x in set(hat_draw)}
+        hat.contents = hat.contents_copy
+
+        for key, value in expected_balls.items():
+            if key not in drawn or drawn[key] < value:
+                break
+            else:
+                probs += 1
+                break
+    return probs/num_experiments
