@@ -30,15 +30,20 @@ def experiment(hat, expected_balls, num_balls_drawn, num_experiments):
     probs = 0
 
     for i in range(num_experiments):
+        check = {}
         hat.contents_copy = hat.contents_all.copy()
         hat_draw = hat.draw(num_balls_drawn)
         drawn = {x: hat_draw.count(x) for x in set(hat_draw)}
         hat.contents = hat.contents_copy
 
         for key, value in expected_balls.items():
-            if key not in drawn or drawn[key] < value:
-                break
+            if key in drawn and value <= drawn[key]:
+                check[key] = True
+                continue
             else:
-                probs += 1
-                break
+                check[key] = False
+
+        if all(check.values()):
+            probs += 1
+
     return probs/num_experiments
